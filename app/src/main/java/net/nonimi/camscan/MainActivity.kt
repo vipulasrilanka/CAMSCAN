@@ -1,7 +1,6 @@
 package net.nonimi.camscan
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -32,10 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+//import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+//import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -50,7 +51,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             CAMSCANTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding))
+                    MainScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        onExit = { finish() }
+                    )
                 }
             }
         }
@@ -58,12 +62,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(modifier: Modifier = Modifier, onExit: () -> Unit) {
     var data by remember { mutableStateOf("") }
     var showCamera by remember { mutableStateOf(false) }
-    val activity = (LocalContext.current as? Activity)
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
@@ -105,6 +108,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                             .build()
                             .also {
+                                @OptIn(ExperimentalGetImage::class)
                                 it.setAnalyzer(Executors.newSingleThreadExecutor()) { imageProxy ->
                                     val image = imageProxy.image
                                     if (image != null) {
@@ -184,7 +188,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Text(text = "Build Time: ${BuildConfig.BUILD_TIME}")
             }
             Button(
-                onClick = { activity?.finish() },
+                onClick = onExit,
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.padding(16.dp)
             ) {
@@ -198,6 +202,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
 @Composable
 fun MainScreenPreview() {
     CAMSCANTheme {
-        MainScreen()
+        MainScreen(onExit = {})
     }
 }
