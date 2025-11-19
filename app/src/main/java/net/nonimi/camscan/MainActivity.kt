@@ -32,11 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-//import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-//import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -45,6 +44,7 @@ import net.nonimi.camscan.ui.theme.CAMSCANTheme
 import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
+    @ExperimentalGetImage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -61,12 +61,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalGetImage
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, onExit: () -> Unit) {
     var data by remember { mutableStateOf("") }
     var showCamera by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
@@ -94,7 +95,7 @@ fun MainScreen(modifier: Modifier = Modifier, onExit: () -> Unit) {
                         val cameraProvider = cameraProviderFuture.get()
 
                         val preview = Preview.Builder().build().also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
+                            it.surfaceProvider = previewView.surfaceProvider
                         }
 
                         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -108,7 +109,6 @@ fun MainScreen(modifier: Modifier = Modifier, onExit: () -> Unit) {
                             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                             .build()
                             .also {
-                                @OptIn(ExperimentalGetImage::class)
                                 it.setAnalyzer(Executors.newSingleThreadExecutor()) { imageProxy ->
                                     val image = imageProxy.image
                                     if (image != null) {
@@ -198,6 +198,7 @@ fun MainScreen(modifier: Modifier = Modifier, onExit: () -> Unit) {
     }
 }
 
+@ExperimentalGetImage
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
