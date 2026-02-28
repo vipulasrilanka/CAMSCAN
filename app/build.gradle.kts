@@ -16,7 +16,7 @@ val keystorePropertiesFile = rootProject.file("gradle.properties")
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
-configure<ApplicationExtension> {
+android {
     namespace = "net.nonimi.camscan"
     compileSdk = 36
 
@@ -57,16 +57,17 @@ configure<ApplicationExtension> {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
     buildFeatures {
         compose = true
         buildConfig = true
     }
     buildToolsVersion = "35.0.0"
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
 }
 
 dependencies {
