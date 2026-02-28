@@ -16,7 +16,7 @@ val keystorePropertiesFile = rootProject.file("gradle.properties")
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
-android {
+configure<ApplicationExtension> {
     namespace = "net.nonimi.camscan"
     compileSdk = 36
 
@@ -44,7 +44,7 @@ android {
             val buildTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
             buildConfigField("String", "BUILD_TIME", "\"$buildTime\"")
         }
-        release {
+        getByName("release") {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
