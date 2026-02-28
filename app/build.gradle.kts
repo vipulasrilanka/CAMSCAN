@@ -4,6 +4,7 @@ import java.util.Locale
 import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
     alias(libs.plugins.android.application)
@@ -15,7 +16,7 @@ val keystorePropertiesFile = rootProject.file("gradle.properties")
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
-android {
+configure<ApplicationExtension> {
     namespace = "net.nonimi.camscan"
     compileSdk = 36
 
